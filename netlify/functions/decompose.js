@@ -93,6 +93,7 @@ ${userContext ? 'Контекст: ' + userContext : ''}
 
     if (!response.ok) {
       const err = await response.json().catch(function() { return {}; });
+      console.log('OpenRouter error:', JSON.stringify(err));
       return { statusCode: 502, headers, body: JSON.stringify({ error: err.error ? err.error.message : 'Ошибка OpenRouter API' }) };
     }
 
