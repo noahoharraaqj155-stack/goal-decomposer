@@ -78,7 +78,7 @@ ${userContext ? 'Контекст: ' + userContext : ''}
         method: 'POST',
         headers: { 'Authorization': 'Bearer ' + apiKey, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'qwen/qwen3.6-plus-preview:free',
+          model: 'meta-llama/llama-3.2-3b-instruct:free',
           messages: [
             {
               role: 'user',
