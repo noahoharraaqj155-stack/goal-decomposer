@@ -78,7 +78,7 @@ ${userContext ? 'Контекст: ' + userContext : ''}
         method: 'POST',
         headers: { 'Authorization': 'Bearer ' + apiKey, 'Content-Type': 'application/json', 'HTTP-Referer': 'https://clinquant-crumble-0c2867.netlify.app', 'X-Title': 'Goal Decomposer' },
         body: JSON.stringify({
-          model: 'qwen/qwen3.6-plus-preview:free',
+          model: 'mistralai/mistral-small-3.1-24b-instruct:free',
           messages: [
             {
               role: 'user',
