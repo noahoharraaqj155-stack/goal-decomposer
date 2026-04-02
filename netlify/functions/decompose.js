@@ -78,7 +78,7 @@ ${userContext ? 'Контекст: ' + userContext : ''}
         method: 'POST',
         headers: { 'Authorization': 'Bearer ' + apiKey, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'google/gemma-3-1b-it:free',
+          model: 'openrouter/free',
           messages: [
             {
               role: 'user',
