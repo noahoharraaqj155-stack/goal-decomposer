@@ -1,17 +1,39 @@
-exports.handler = async function(event, context) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+exports.handler = async function(event) {
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Content-Type': 'application/json'
+  };
 
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: 200, headers, body: '' };
+  }
 
-  const { goal, domain, horizon, context } = req.body;
+  if (event.httpMethod !== 'POST') {
+    return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) };
+  }
 
-  if (!goal) return res.status(400).json({ error: 'Цель не указана' });
+  let body;
+  try {
+    body = JSON.parse(event.body);
+  } catch(e) {
+    return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid JSON' }) };
+  }
+
+  const goal = body.goal;
+  const domain = body.domain;
+  const horizon = body.horizon;
+  const userContext = body.context;
+
+  if (!goal) {
+    return { statusCode: 400, headers, body: JSON.stringify({ error: 'Цель не указана' }) };
+  }
 
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) return res.status(500).json({ error: 'API ключ не настроен на сервере' });
+  if (!apiKey) {
+    return { statusCode: 500, headers, body: JSON.stringify({ error: 'API ключ не настроен на сервере' }) };
+  }
 
   const domainMap = {
     general: 'общей тематики', startup: 'стартапа и бизнеса', personal: 'личного развития',
@@ -30,7 +52,7 @@ exports.handler = async function(event, context) {
 Цель: ${goal}
 Область: ${domainMap[domain] || 'общей тематики'}
 Горизонт: ${horizonMap[horizon] || '3 месяца'}
-${context ? 'Контекст: ' + context : ''}
+${userContext ? 'Контекст: ' + userContext : ''}
 
 Верни JSON строго по схеме:
 {
@@ -54,7 +76,7 @@ ${context ? 'Контекст: ' + context : ''}
 
   try {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + apiKey,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -66,17 +88,17 @@ ${context ? 'Контекст: ' + context : ''}
     );
 
     if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      return res.status(502).json({ error: err.error?.message || 'Ошибка Gemini API' });
+      const err = await response.json().catch(function() { return {}; });
+      return { statusCode: 502, headers, body: JSON.stringify({ error: err.error ? err.error.message : 'Ошибка Gemini API' }) };
     }
 
     const data = await response.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const text = data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] ? data.candidates[0].content.parts[0].text : '';
     const clean = text.replace(/```json|```/g, '').trim();
     const plan = JSON.parse(clean);
 
-    return res.status(200).json(plan);
-  } catch (e) {
-    return res.status(500).json({ error: 'Ошибка сервера: ' + e.message });
+    return { statusCode: 200, headers, body: JSON.stringify(plan) };
+  } catch(e) {
+    return { statusCode: 500, headers, body: JSON.stringify({ error: 'Ошибка сервера: ' + e.message }) };
   }
-}
+};
