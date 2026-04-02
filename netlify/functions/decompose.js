@@ -27,9 +27,9 @@ exports.handler = async function(event) {
     return { statusCode: 400, headers, body: JSON.stringify({ error: 'Цель не указана' }) };
   }
 
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) {
-    return { statusCode: 500, headers, body: JSON.stringify({ error: 'API ключ не настроен на сервере' }) };
+    return { statusCode: 500, headers, body: JSON.stringify({ error: 'OpenRouter API ключ не настроен на сервере' }) };
   }
 
   const domainMap = {
@@ -73,24 +73,31 @@ ${userContext ? 'Контекст: ' + userContext : ''}
 
   try {
     const response = await fetch(
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + apiKey,
+      'https://openrouter.ai/api/v1/chat/completions',
       {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Authorization': 'Bearer ' + apiKey, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.7, maxOutputTokens: 2000 }
+          model: 'meta-llama/llama-3.3-8b-instruct:free',
+          messages: [
+            {
+              role: 'user',
+              content: prompt
+            }
+          ],
+          temperature: 0.7,
+          max_tokens: 2000
         })
       }
     );
 
     if (!response.ok) {
       const err = await response.json().catch(function() { return {}; });
-      return { statusCode: 502, headers, body: JSON.stringify({ error: err.error ? err.error.message : 'Ошибка Gemini API' }) };
+      return { statusCode: 502, headers, body: JSON.stringify({ error: err.error ? err.error.message : 'Ошибка OpenRouter API' }) };
     }
 
     const data = await response.json();
-    const text = data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] ? data.candidates[0].content.parts[0].text : '';
+    const text = data.choices && data.choices[0] && data.choices[0].message ? data.choices[0].message.content : '';
     const clean = text.replace(/```json|```/g, '').trim();
     const plan = JSON.parse(clean);
 
