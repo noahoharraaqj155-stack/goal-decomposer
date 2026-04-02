@@ -78,7 +78,7 @@ ${userContext ? 'Контекст: ' + userContext : ''}
         method: 'POST',
         headers: { 'Authorization': 'Bearer ' + apiKey, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'google/gemma-7b-it:free',
+          model: 'qwen/qwen3.6-plus-preview:free',
           messages: [
             {
               role: 'user',
