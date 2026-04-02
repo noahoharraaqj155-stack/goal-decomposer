@@ -21,10 +21,7 @@ exports.handler = async function(event) {
     return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid JSON' }) };
   }
 
-  const goal = body.goal;
-  const domain = body.domain;
-  const horizon = body.horizon;
-  const userContext = body.context;
+  const { goal, domain, horizon, context: userContext } = body;
 
   if (!goal) {
     return { statusCode: 400, headers, body: JSON.stringify({ error: 'Цель не указана' }) };
