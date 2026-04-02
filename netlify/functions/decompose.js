@@ -76,9 +76,9 @@ ${userContext ? 'Контекст: ' + userContext : ''}
       'https://openrouter.ai/api/v1/chat/completions',
       {
         method: 'POST',
-        headers: { 'Authorization': 'Bearer ' + apiKey, 'Content-Type': 'application/json' },
+        headers: { 'Authorization': 'Bearer ' + apiKey, 'Content-Type': 'application/json', 'HTTP-Referer': 'https://clinquant-crumble-0c2867.netlify.app', 'X-Title': 'Goal Decomposer' },
         body: JSON.stringify({
-          model: 'openrouter/free',
+          model: 'meta-llama/llama-3.3-70b-instruct:free',
           messages: [
             {
               role: 'user',
