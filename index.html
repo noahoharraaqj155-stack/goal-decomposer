@@ -312,7 +312,7 @@ async function generate() {
   resultEl.innerHTML = '<div class="loading"><div class="spinner"></div>Декомпозируем цель...</div>';
 
   try {
-    var resp = await fetch('/api/decompose', {
+    var resp = await fetch('/.netlify/functions/decompose', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ goal, domain, horizon, context: ctx })
