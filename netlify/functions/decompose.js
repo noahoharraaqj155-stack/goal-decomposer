@@ -78,7 +78,7 @@ ${userContext ? 'Контекст: ' + userContext : ''}
         method: 'POST',
         headers: { 'Authorization': 'Bearer ' + apiKey, 'Content-Type': 'application/json', 'HTTP-Referer': 'https://clinquant-crumble-0c2867.netlify.app', 'X-Title': 'Goal Decomposer' },
         body: JSON.stringify({
-          model: 'meta-llama/llama-3.3-70b-instruct:free',
+          model: 'deepseek/deepseek-chat-v3-0324:free',
           messages: [
             {
               role: 'user',
